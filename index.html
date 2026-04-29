@@ -581,8 +581,16 @@
         right: 0;
         bottom: auto;
         left: 0;
-        padding-top: 18px;
-        padding-bottom: max(14px, env(safe-area-inset-bottom));
+        padding-top: 10px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+      }
+
+      .composer {
+        min-height: 52px;
+      }
+
+      .hint {
+        margin-top: 6px;
       }
 
       .empty-state {
@@ -653,7 +661,7 @@
     const conversations = [
       {
         id: "chat-1",
-        title: "ZaneChat entrance",
+        title: "thinking 1",
         messages: []
       }
     ];
@@ -666,7 +674,7 @@
     let pulseLastFrameAt = 0;
     let pulsePhase = 0;
     let activeConversationId = "chat-1";
-    let newConversationCount = 0;
+    let newConversationCount = 1;
     let emptyFadeTimer = null;
 
     function formatTime(totalSeconds) {
@@ -808,7 +816,6 @@
           updateSendState();
           renderSidebar();
           renderActiveConversation();
-          closeSidebar();
           scrollToBottom();
         });
 
@@ -900,7 +907,7 @@
 
       const conversation = {
         id: `chat-${Date.now()}`,
-        title: newConversationCount === 1 ? "New conversation" : `New conversation ${newConversationCount}`,
+        title: `thinking ${newConversationCount}`,
         messages: []
       };
 
@@ -912,7 +919,6 @@
       updateSendState();
       renderSidebar();
       renderActiveConversation();
-      closeSidebar();
       scrollToBottom();
     }
 
