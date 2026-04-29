@@ -229,14 +229,18 @@
     }
 
     .chat-inner {
+      display: flex;
+      flex-direction: column;
       width: min(100%, 780px);
+      min-height: 100%;
       margin: 0 auto;
     }
 
     .empty-state {
+      flex: 1;
       display: grid;
       place-items: center;
-      min-height: calc(100vh - 260px);
+      min-height: calc(var(--app-height) - 260px);
       color: #f1f1f3;
       text-align: center;
       opacity: 1;
@@ -581,20 +585,39 @@
         right: 0;
         bottom: auto;
         left: 0;
-        padding-top: 10px;
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        padding-top: 7px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
       }
 
       .composer {
-        min-height: 52px;
+        min-height: 48px;
+        padding: 7px 8px 7px 14px;
+        border-radius: 24px;
+      }
+
+      textarea {
+        min-height: 30px;
+        padding: 4px 0;
+      }
+
+      .send {
+        width: 34px;
+        height: 34px;
+      }
+
+      .send svg {
+        width: 17px;
+        height: 17px;
       }
 
       .hint {
-        margin-top: 6px;
+        margin-top: 5px;
+        font-size: 11.5px;
       }
 
       .empty-state {
-        min-height: 100%;
+        min-height: 0;
+        height: 100%;
       }
 
       .bubble {
@@ -805,7 +828,8 @@
         item.className = conversation.id === activeConversationId ? "side-item active" : "side-item";
         item.type = "button";
         item.textContent = conversation.title;
-        item.addEventListener("click", () => {
+        item.addEventListener("click", (event) => {
+          event.stopPropagation();
           if (conversation.id === activeConversationId) return;
 
           activeConversationId = conversation.id;
@@ -959,7 +983,16 @@
       sendMessage();
     });
 
+    sidebar.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    sidebar.addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
+    });
+
     newChatButton.addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
       const rect = newChatButton.getBoundingClientRect();
       newChatButton.style.setProperty("--ripple-x", `${event.clientX - rect.left}px`);
       newChatButton.style.setProperty("--ripple-y", `${event.clientY - rect.top}px`);
@@ -974,7 +1007,10 @@
       }
     });
 
-    newChatButton.addEventListener("click", createNewConversation);
+    newChatButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      createNewConversation();
+    });
 
     menuToggle.addEventListener("click", (event) => {
       event.stopPropagation();
