@@ -7,6 +7,7 @@
   <style>
     :root {
       color-scheme: dark;
+      --app-height: 100dvh;
       --visual-bottom-inset: 0px;
       --bg: #0f0f10;
       --sidebar: #171719;
@@ -43,7 +44,7 @@
       display: grid;
       grid-template-columns: 260px minmax(0, 1fr);
       height: 100vh;
-      height: 100dvh;
+      height: var(--app-height);
       background:
         radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.035), transparent 34rem),
         var(--bg);
@@ -159,8 +160,9 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
+      min-height: 0;
       height: 100vh;
-      height: 100dvh;
+      height: var(--app-height);
     }
 
     .topbar {
@@ -220,6 +222,7 @@
 
     .chat {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding: 32px 18px 150px;
       scroll-behavior: smooth;
@@ -568,22 +571,22 @@
 
       .chat {
         padding-top: 18px;
-        padding-bottom: max(158px, calc(132px + env(safe-area-inset-bottom) + var(--visual-bottom-inset)));
+        padding-bottom: 18px;
       }
 
       .composer-wrap {
-        position: fixed;
+        position: relative;
+        flex: 0 0 auto;
         z-index: 120;
         right: 0;
-        bottom: var(--visual-bottom-inset);
+        bottom: auto;
         left: 0;
         padding-top: 18px;
         padding-bottom: max(14px, env(safe-area-inset-bottom));
       }
 
       .empty-state {
-        min-height: calc(100vh - 230px);
-        min-height: calc(100dvh - 260px);
+        min-height: 100%;
       }
 
       .bubble {
@@ -921,15 +924,16 @@
       sidebar.classList.toggle("open");
     }
 
-    function updateVisualViewportInset() {
+    function updateViewportMetrics() {
       if (!window.visualViewport) {
+        document.documentElement.style.setProperty("--app-height", "100dvh");
         document.documentElement.style.setProperty("--visual-bottom-inset", "0px");
         return;
       }
 
       const viewport = window.visualViewport;
-      const hiddenBottom = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-      document.documentElement.style.setProperty("--visual-bottom-inset", `${Math.round(hiddenBottom)}px`);
+      document.documentElement.style.setProperty("--app-height", `${Math.round(viewport.height)}px`);
+      document.documentElement.style.setProperty("--visual-bottom-inset", "0px");
     }
 
     input.addEventListener("input", () => {
@@ -979,15 +983,15 @@
     });
 
     if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", updateVisualViewportInset);
-      window.visualViewport.addEventListener("scroll", updateVisualViewportInset);
+      window.visualViewport.addEventListener("resize", updateViewportMetrics);
+      window.visualViewport.addEventListener("scroll", updateViewportMetrics);
     }
 
-    window.addEventListener("resize", updateVisualViewportInset);
+    window.addEventListener("resize", updateViewportMetrics);
 
     renderSidebar();
     renderActiveConversation();
-    updateVisualViewportInset();
+    updateViewportMetrics();
     updateSendState();
     resizeInput();
   </script>
