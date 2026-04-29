@@ -8,7 +8,7 @@
     :root {
       color-scheme: dark;
       --app-height: 100dvh;
-      --visual-bottom-inset: 0px;
+      --keyboard-offset: 0px;
       --bg: #0f0f10;
       --sidebar: #171719;
       --panel: #202123;
@@ -575,18 +575,17 @@
 
       .chat {
         padding-top: 18px;
-        padding-bottom: 18px;
+        padding-bottom: max(118px, calc(104px + env(safe-area-inset-bottom) + var(--keyboard-offset)));
       }
 
       .composer-wrap {
-        position: relative;
-        flex: 0 0 auto;
-        z-index: 60;
+        position: fixed;
+        z-index: 100;
         right: 0;
-        bottom: auto;
+        bottom: var(--keyboard-offset);
         left: 0;
         padding-top: 7px;
-        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        padding-bottom: max(6px, env(safe-area-inset-bottom));
       }
 
       .composer {
@@ -954,21 +953,30 @@
       sidebar.classList.toggle("open");
     }
 
-    function updateViewportMetrics() {
+    function updateKeyboardOffset() {
       if (!window.visualViewport) {
-        document.documentElement.style.setProperty("--app-height", "100dvh");
-        document.documentElement.style.setProperty("--visual-bottom-inset", "0px");
+        document.documentElement.style.setProperty("--keyboard-offset", "0px");
         return;
       }
 
       const viewport = window.visualViewport;
-      document.documentElement.style.setProperty("--app-height", `${Math.round(viewport.height)}px`);
-      document.documentElement.style.setProperty("--visual-bottom-inset", "0px");
+      const rawOffset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+      const isTyping = document.activeElement === input;
+      const cappedOffset = Math.min(rawOffset, window.innerHeight * 0.62);
+      const keyboardOffset = isTyping && rawOffset > 24 ? cappedOffset : 0;
+
+      document.documentElement.style.setProperty("--keyboard-offset", `${Math.round(keyboardOffset)}px`);
     }
 
     input.addEventListener("input", () => {
       resizeInput();
       updateSendState();
+      updateKeyboardOffset();
+    });
+
+    input.addEventListener("focus", updateKeyboardOffset);
+    input.addEventListener("blur", () => {
+      window.setTimeout(updateKeyboardOffset, 80);
     });
 
     input.addEventListener("keydown", (event) => {
@@ -1025,15 +1033,15 @@
     });
 
     if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", updateViewportMetrics);
-      window.visualViewport.addEventListener("scroll", updateViewportMetrics);
+      window.visualViewport.addEventListener("resize", updateKeyboardOffset);
+      window.visualViewport.addEventListener("scroll", updateKeyboardOffset);
     }
 
-    window.addEventListener("resize", updateViewportMetrics);
+    window.addEventListener("resize", updateKeyboardOffset);
 
     renderSidebar();
     renderActiveConversation();
-    updateViewportMetrics();
+    updateKeyboardOffset();
     updateSendState();
     resizeInput();
   </script>
